@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Weather</title>
+    <link rel="icon" type="image/png" href="src/icons/weather_logo.png">
+    <link rel="manifest" href="manifest.json">
+    <script src="src/index.js" defer></script>
+    <link href="src/output.css" rel="stylesheet">
+</head>
+<body>
+    <header class="bg-gradient-to-r from-sky-500 via-30% to-emerald-500 to-90% text-black p-4 text-center">
+        <h1 class="text-3xl font-bold">Daily Weather</h1>
+        </header>
+            <main class="relative w-full h-screen overflow-hidden">
+  
+<!-- Foreground Content -->
+<section class="relative z-10 flex flex-col items-center pt-8 space-y-6">
+
+  <!-- Search Bar with Location -->
+  <div class="flex items-center bg-white/80 backdrop-blur-md shadow-lg rounded-full px-4 py-2">
+    <img src="src/icons/location.png" alt="Location Icon" class="w-6 h-6 mr-2 opacity-70">
+
+    <input type="text" id="cityInput" placeholder="Enter city name" 
+      class="p-2 bg-transparent focus:outline-none text-gray-800 placeholder-gray-500">
+
+    <button id="getWeatherBtn" 
+      class="bg-gradient-to-r from-lime-400 to-green-500 text-white font-semibold px-4 py-2 rounded-full shadow hover:scale-105 transition">
+      Get Weather
+    </button>
+  </div>
+
+  <!-- Unit Toggle -->
+  <div class="flex items-center space-x-2">
+    <button id="celsius" 
+      class="celsius-btn px-3 py-1 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition text-sm">
+      ºC
+    </button>
+    <button id="fahrenheit" 
+      class="fahrenheit-btn px-3 py-1 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition text-sm">
+      ºF
+    </button>
+  </div>
+  
+</section>
+
+
+<!---<footer class="mt-6 text-sm text-slate-500">
+<div class="flex gap-4 my-4 justify-center md:justify-start">
+          <a href="https://in.linkedin.com/" target="_blank" rel="noopener noreferrer"><img
+              src="src/images/linkedin-fill.png" alt="LinkedIn"
+              class=" w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
+          <a href="https://github.com/" target="_blank" rel="noopener noreferrer"><img src="src/images/github-fill.png"
+              alt="GitHub" class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
+          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer"><img
+              src="src/images/twitter-fill.png" alt="Twitter"
+              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"><img
+              src="src/images/instagram-line.png" alt="Instagram"
+              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
+          <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"><img
+              src="src/images/facebook-circle-fill.png" alt="Facebook"
+              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
+
+</footer>--->
+
+</main>
+
+
+    
+</body>
+</html>
