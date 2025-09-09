@@ -1,73 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Weather</title>
-    <link rel="icon" type="image/png" href="src/icons/weather_logo.png">
-    <link rel="manifest" href="manifest.json">
-    <script src="src/index.js" defer></script>
-    <link href="src/output.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <link rel="icon" type="image/png" href="src/icons/weather_logo.png">
+  <link href="manifest.json" rel="manifest">
+  <script src="src/index.js" defer></script>
+   <link href ="src/output.css" rel="stylesheet">
+   <script src="https://cdn.tailwindcss.com"></script>
+  
 </head>
-<body>
-    <header class="bg-gradient-to-r from-sky-500 via-30% to-emerald-500 to-90% text-black p-4 text-center">
-        <h1 class="text-3xl font-bold">Daily Weather</h1>
-        </header>
-            <main class="relative w-full h-screen overflow-hidden">
-  
-<!-- Foreground Content -->
-<section class="relative z-10 flex flex-col items-center pt-8 space-y-6">
+<body class="h-screen flex bg-gray-100 overflow-hidden">
+  <header>
 
-  <!-- Search Bar with Location -->
-  <div class="flex items-center bg-white/80 backdrop-blur-md shadow-lg rounded-full px-4 py-2">
-    <img src="src/icons/location.png" alt="Location Icon" class="w-6 h-6 mr-2 opacity-70">
+  </header>
 
-    <input type="text" id="cityInput" placeholder="Enter city name" 
-      class="p-2 bg-transparent focus:outline-none text-gray-800 placeholder-gray-500">
+ 
 
-    <button id="getWeatherBtn" 
-      class="bg-gradient-to-r from-lime-400 to-green-500 text-white font-semibold px-4 py-2 rounded-full shadow hover:scale-105 transition">
-      Get Weather
-    </button>
-  </div>
-
-  <!-- Unit Toggle -->
-  <div class="flex items-center space-x-2">
-    <button id="celsius" 
-      class="celsius-btn px-3 py-1 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition text-sm">
-      ºC
-    </button>
-    <button id="fahrenheit" 
-      class="fahrenheit-btn px-3 py-1 rounded-full bg-orange-500 text-white font-semibold shadow hover:bg-orange-600 transition text-sm">
-      ºF
-    </button>
-  </div>
-  
-</section>
-
-
-<!---<footer class="mt-6 text-sm text-slate-500">
-<div class="flex gap-4 my-4 justify-center md:justify-start">
-          <a href="https://in.linkedin.com/" target="_blank" rel="noopener noreferrer"><img
-              src="src/images/linkedin-fill.png" alt="LinkedIn"
-              class=" w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
-          <a href="https://github.com/" target="_blank" rel="noopener noreferrer"><img src="src/images/github-fill.png"
-              alt="GitHub" class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
-          <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer"><img
-              src="src/images/twitter-fill.png" alt="Twitter"
-              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
-          <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"><img
-              src="src/images/instagram-line.png" alt="Instagram"
-              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
-          <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"><img
-              src="src/images/facebook-circle-fill.png" alt="Facebook"
-              class="w-5 h-5 transition-transform duration-500 hover:scale-110" /></a>
-
-</footer>--->
-
-</main>
-
+  <!-- Main Weather Content -->
+  <main class="flex-1 relative bg-center bg-cover text-white bg-[url('/src/icons/cloudy.jpg')]">
 
     
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+
+    <!-- Weather Info -->
+    <div class="relative z-10 p-4 md:p-12">
+      
+      <!-- Top Bar -->
+      <div class="flex items-center space-x-3 absolute top-4 left-4  p-2">
+  <img src="src/icons/location.svg" alt="Icon" class="w-6 h-6">
+  <h2 class="text-sm font-semibold text-white p-0 m-0">
+    Johannesburg,<br>
+   <span class="text-gray-200">South Africa</span>
+  </h2>
+
+
+        <input type="text" placeholder="Search location..."
+               class="px-4 py-2 ml-4 rounded-full bg-white bg-opacity-60 text-black placeholder-gray-500 focus:outline-none w-1/2 md:w-2xl">
+      </div>
+
+      <!-- Current Weather -->
+      <div class="mt-20 text-right md:text-left ">
+        <h1 class="text-6xl md:text-7xl font-bold">25°</h1>
+        <p class="text-lg md:text-xl mt-2">It’s Partly Cloudy</p>
+        <p class="mt-4 text-base md:text-lg">Wednesday, 21 September</p>
+        <p class="text-base md:text-lg">12:05</p>
+      </div>
+
+      <!-- Daily / Hourly Switch -->
+      <div class="mt-6 flex justify-center md:justify-start space-x-4">
+        <button class="px-4 py-1 rounded-full bg-teal-500 text-white font-semibold">Daily</button>
+        <button class="px-4 py-1 rounded-full bg-white bg-opacity-60 text-black">Hourly</button>
+      </div>
+
+      <!-- Forecast Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
+        <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
+          <p class="font-semibold">Wed</p>
+          <p class="text-sm">Sep 21</p>
+          <p class="text-2xl">☁️</p>
+          <p class="font-semibold">25°</p>
+        </div>
+        <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
+          <p class="font-semibold">Thu</p>
+          <p class="text-sm">Sep 22</p>
+          <p class="text-2xl">☀️</p>
+          <p class="font-semibold">27°</p>
+        </div>
+        <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
+          <p class="font-semibold">Fri</p>
+          <p class="text-sm">Sep 23</p>
+          <p class="text-2xl">☀️</p>
+          <p class="font-semibold">33°</p>
+        </div>
+        <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
+          <p class="font-semibold">Sat</p>
+          <p class="text-sm">Sep 24</p>
+          <p class="text-2xl">☁️</p>
+          <p class="font-semibold">15°</p>
+        </div>
+        <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
+          <p class="font-semibold">Sun</p>
+          <p class="text-sm">Sep 25</p>
+          <p class="text-2xl">⛈️</p>
+          <p class="font-semibold">9°</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  
 </body>
 </html>
