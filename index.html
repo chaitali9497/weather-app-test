@@ -8,55 +8,85 @@
   <link href="manifest.json" rel="manifest">
   <script src="src/index.js" defer></script>
    <link href ="src/output.css" rel="stylesheet">
-   <script src="https://cdn.tailwindcss.com"></script>
+   
+   
+   
   
 </head>
-<body class="h-screen flex bg-gray-100 overflow-hidden">
-  <header>
+<body class="min-h-screen flex flex-col overflow-y-auto ">
 
-  </header>
-
+  
  
 
   <!-- Main Weather Content -->
-  <main class="flex-1 relative bg-center bg-cover text-white bg-[url('/src/icons/cloudy.jpg')]">
+  <main class="flex-1 relative  text-white ">
 
-    
-    <!-- Overlay -->
-    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
 
     <!-- Weather Info -->
     <div class="relative z-10 p-4 md:p-12">
       
-      <!-- Top Bar -->
-      <div class="flex items-center space-x-3 absolute top-4 left-4  p-2">
-  <img src="src/icons/location.svg" alt="Icon" class="w-6 h-6">
-  <h2 class="text-sm font-semibold text-white p-0 m-0">
-    Johannesburg,<br>
-   <span class="text-gray-200">South Africa</span>
-  </h2>
+    <!-- Top Bar -->
+<div class="flex items-center absolute top-4 left-4 right-4 p-2 space-x-2">
+  <!-- Location -->
+ <div class="flex items-center space-x-2">
+   <img id="get-location" src="src/icons/location.svg" alt="Location Icon" class="w-5 h-5 cursor-pointer">
+
+    <div class="text-white leading-tight">
+      <p id="city-name" class="font-bold"></p>
+<p id="country-name" class="text-sm"></p>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+ <div class="relative w-1/2 md:w-full max-w-xl space-x-2">
+  <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+    <img src="src/icons/searchicon.svg" alt="Search Icon" class="w-5 h-5 text-gray-500">
+  </span>
+  <input 
+    type="text" 
+    placeholder="Search location..."
+    class="pl-10 pr-4 py-2 w-full rounded-full bg-white bg-opacity-60 text-black placeholder-gray-500 focus:outline-none"
+  >
+
+</div>
 
 
-        <input type="text" placeholder="Search location..."
-               class="px-4 py-2 ml-4 rounded-full bg-white bg-opacity-60 text-black placeholder-gray-500 focus:outline-none w-1/2 md:w-2xl">
-      </div>
+        </div>
+<!-- Current Weather -->
+<div class="mt-20 md:text-left  space-y-1">
+  <h2 class="text-2xl">Weather</h2>
+  <p class="text-xl text-gray-700 mt-2">Now</p>
+  <div class="flex items-center space-y-1 mt-2">
+  <!-- Temperature -->
+  <h2 id="temperature" class="text-6xl md:text-7xl font-bold"></h2>
+  <!-- Unit Toggle -->
+  <div class="flex items-center space-x-1 ml-2 pt-2 ">
+    <span id="celsius" class="font-medium text-5xl">°C</span>
+    <span class="text-gray-500">|</span>
+    <span id="fahrenheit" class="text-gray-500 text-5xl">°F</span>
+  </div>
+    <!-- Weather Icon -->
+  <img id="weather-icon" src="src/icons/cloud_icon.svg" alt="Weather Icon" class="w-10 h-10 mt-2">
+</div>
+  <p id="weather-desc" class="text-lg md:text-xl mt-2">It’s Partly Cloudy</p>
+  <p id="current-date" class="mt-4 text-base md:text-lg">Wednesday, 21 September</p>
+  <p id="current-time" class="text-base md:text-lg">12:05</p>
+</div>
+<div class="text-white px-4 py-2 flex items-center space-x-4 text-sm">
+  <p id="precipitation">Precipitation: --</p>
+  <p id="humidity">Humidity: --</p>
+  <p id="wind">Wind: --</p>
+</div>
 
-      <!-- Current Weather -->
-      <div class="mt-20 text-right md:text-left ">
-        <h1 class="text-6xl md:text-7xl font-bold">25°</h1>
-        <p class="text-lg md:text-xl mt-2">It’s Partly Cloudy</p>
-        <p class="mt-4 text-base md:text-lg">Wednesday, 21 September</p>
-        <p class="text-base md:text-lg">12:05</p>
-      </div>
 
       <!-- Daily / Hourly Switch -->
       <div class="mt-6 flex justify-center md:justify-start space-x-4">
-        <button class="px-4 py-1 rounded-full bg-teal-500 text-white font-semibold">Daily</button>
-        <button class="px-4 py-1 rounded-full bg-white bg-opacity-60 text-black">Hourly</button>
-      </div>
+  <button id="dailyBtn" class="px-4 py-1 rounded-full bg-teal-500 text-white font-semibold">Daily</button>
+  <button id="hourlyBtn" class="px-4 py-1 rounded-full bg-white bg-opacity-60 text-black">Hourly</button>
+</div>
 
       <!-- Forecast Cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
+      <div  id ="forecastContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
         <div class="bg-white bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center">
           <p class="font-semibold">Wed</p>
           <p class="text-sm">Sep 21</p>
@@ -89,6 +119,103 @@
         </div>
       </div>
     </div>
+    <section>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+  <!-- Left Column -->
+  <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md">
+    <div class="flex justify-between items-center py-2 border-b border-white/20">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>High / Low</span>
+      </span>
+      <span>13° / 2°</span>
+    </div>
+
+    <div class="flex justify-between items-center py-2 border-b border-white/20">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>Feels Like</span>
+      </span>
+      <span>6°</span>
+    </div>
+
+    <div class="flex justify-between items-center py-2 border-b border-white/20">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>Pressure</span>
+      </span>
+      <span>1024.0 mb</span>
+    </div>
+
+    <div class="flex justify-between items-center py-2 border-b border-white/20">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>Humidity</span>
+      </span>
+      <span>70%</span>
+    </div>
+
+    <div class="flex justify-between items-center py-2 border-b border-white/20">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>Dew Point</span>
+      </span>
+      <span>8°</span>
+    </div>
+
+    <div class="flex justify-between items-center py-2">
+      <span class="flex items-center space-x-2">
+        <img src="" class="w-5 h-5" alt="">
+        <span>Visibility</span>
+      </span>
+      <span>27 km</span>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div class="grid grid-cols-1 gap-4">
+    <!-- Sunrise / Sunset -->
+    <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md flex justify-between items-center">
+      <div class="text-center">
+        <img src="" class="w-8 h-8 mx-auto" alt="">
+        <p class="text-sm mt-1">Sunrise</p>
+        <p class="font-bold">06:46</p>
+      </div>
+      <div class="text-center">
+        <img src="" class="w-8 h-8 mx-auto" alt="">
+        <p class="text-sm mt-1">Sunset</p>
+        <p class="font-bold">19:01</p>
+      </div>
+    </div>
+
+    <!-- Wind -->
+    <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md grid grid-cols-3 text-center">
+      <div>
+        <img src="" class="w-6 h-6 mx-auto" alt="">
+        <p class="text-sm">Speed</p>
+        <p class="font-bold">9 km/h</p>
+      </div>
+      <div>
+        <img src="" class="w-6 h-6 mx-auto" alt="">
+        <p class="text-sm">Direction</p>
+        <p class="font-bold">NE</p>
+      </div>
+      <div>
+        <img src="" class="w-6 h-6 mx-auto" alt="">
+        <p class="text-sm">Gust</p>
+        <p class="font-bold">18 km/h</p>
+      </div>
+    </div>
+
+    <!-- UV Index -->
+    <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md text-center">
+      <p class="text-sm">UV Index</p>
+      <p class="text-2xl font-bold text-yellow-500">3</p>
+    </div>
+  </div>
+</div>
+</section>
+
   </main>
 
   
