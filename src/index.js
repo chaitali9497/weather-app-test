@@ -50,7 +50,7 @@ function startCityClock(timezone) {
 async function search(city) {
   try {
     let apiKey = "ea13345dcb06454a8f5154438251109";
-    let url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=7&aqi=no&alerts=no`;
+    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=7&aqi=no&alerts=no`;
 
     let response = await fetch(url);
     if (!response.ok) throw new Error("City not found");
@@ -70,7 +70,7 @@ async function search(city) {
 async function getWeatherByCoords(lat, lon) {
   try {
     let apiKey = "ea13345dcb06454a8f5154438251109";
-    let url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=no&alerts=no`;
+    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=no&alerts=no`;
 
     let response = await fetch(url);
     if (!response.ok) throw new Error("Unable to fetch location weather");
