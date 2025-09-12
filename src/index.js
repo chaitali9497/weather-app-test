@@ -1,15 +1,13 @@
-
-    
-
 let currentTempCelsius = null; // store Celsius temp
 let isCelsius = localStorage.getItem("unit") !== "F";
 
-// Convert Celsius → Fahrenheit
+// Store forecast and timezone
+let forecastData = { daily: [], hourly: [], timezone: "UTC" };
+
 function cToF(celsius) {
-  return (celsius * 9/5) + 32;
+  return (celsius * 9 / 5) + 32;
 }
 
-// Update temperature display depending on unit
 function updateTemperatureDisplay() {
   const tempElement = document.getElementById("temperature");
   if (currentTempCelsius === null) return;
@@ -29,47 +27,38 @@ function updateTemperatureDisplay() {
   }
 }
 
-// ✅ Fetch weather by city name
+// ---- GLOBAL CLOCK FUNCTION ----
+function startCityClock(timezone) {
+  function updateClock() {
+    let cityTime = new Date().toLocaleString("en-US", { timeZone: timezone });
+    let dateObj = new Date(cityTime);
+
+    let options = { weekday: "long", day: "numeric", month: "long" };
+    document.getElementById("current-date").textContent =
+      dateObj.toLocaleDateString("en-GB", options);
+
+    document.getElementById("current-time").textContent =
+      dateObj.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: true });
+  }
+
+  updateClock();
+  clearInterval(window.cityClockTimer);
+  window.cityClockTimer = setInterval(updateClock, 60000);
+}
+
+// ---- FETCH WEATHER BY CITY NAME ----
 async function search(city) {
   try {
-    let apiKey = "5ce165099db98eb1a4172c9b8eea4597";
-    let currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-    let response = await fetch(currentWeatherUrl);
+    let apiKey = "ea13345dcb06454a8f5154438251109";
+    let url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=7&aqi=no&alerts=no`;
+
+    let response = await fetch(url);
     if (!response.ok) throw new Error("City not found");
     let data = await response.json();
 
-    // Update location
-    document.getElementById("city-name").textContent = data.name;
-    document.getElementById("country-name").textContent = data.sys.country;
+    updateWeatherUI(data);
+    updateForecast(data);
 
-    // Save Celsius temp & update display
-    currentTempCelsius = data.main.temp;
-    updateTemperatureDisplay();
-
-    // Update weather description
-    document.getElementById("weather-desc").textContent = data.weather[0].description;
-
-    // Weather icon
-    let iconCode = data.weather[0].icon;
-    document.getElementById("weather-icon").src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-
-    // Extra Weather Info
-    document.getElementById("humidity").textContent = `Humidity: ${data.main.humidity}%`;
-    let windKmh = (data.wind.speed * 3.6).toFixed(1);
-    document.getElementById("wind").textContent = `Wind: ${windKmh} km/h`;
-
-    let precipitation = 0;
-    if (data.rain && data.rain["1h"]) precipitation = data.rain["1h"];
-    else if (data.snow && data.snow["1h"]) precipitation = data.snow["1h"];
-    document.getElementById("precipitation").textContent = `Precipitation: ${precipitation} mm`;
-
-    // Date & Time
-    let now = new Date();
-    let options = { weekday: "long", day: "numeric", month: "long" };
-    document.getElementById("current-date").textContent = now.toLocaleDateString(undefined, options);
-    document.getElementById("current-time").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    // Save last city
     localStorage.setItem("lastCity", city);
   } catch (error) {
     console.error(error);
@@ -77,85 +66,149 @@ async function search(city) {
   }
 }
 
-// ✅ Fetch weather by GPS coordinates
+// ---- FETCH WEATHER BY COORDINATES ----
 async function getWeatherByCoords(lat, lon) {
-  let apiKey = "5ce165099db98eb1a4172c9b8eea4597";
-  let url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
-
   try {
+    let apiKey = "ea13345dcb06454a8f5154438251109";
+    let url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=no&alerts=no`;
+
     let response = await fetch(url);
     if (!response.ok) throw new Error("Unable to fetch location weather");
     let data = await response.json();
 
-    // Reuse search logic by passing city name
-    search(data.name);
+    updateWeatherUI(data);
+    updateForecast(data);
+
+    localStorage.setItem("lastCity", data.location.name);
   } catch (error) {
     console.error(error);
     alert(error.message);
   }
 }
 
-// ✅ Detect current location and fetch weather
+// ---- UPDATE WEATHER UI ----
+function updateWeatherUI(data) {
+  document.getElementById("city-name").textContent = data.location.name;
+  document.getElementById("country-name").textContent = data.location.country;
+
+  currentTempCelsius = data.current.temp_c;
+  updateTemperatureDisplay();
+
+  document.getElementById("weather-desc").textContent = data.current.condition.text;
+  document.getElementById("weather-icon").src = "https:" + data.current.condition.icon;
+
+  document.getElementById("humidity").textContent = `Humidity: ${data.current.humidity}%`;
+  document.getElementById("wind").textContent = `Wind: ${data.current.wind_kph} km/h`;
+  document.getElementById("precipitation").textContent =
+    `Precipitation: ${data.current.precip_mm} mm`;
+
+  startCityClock(data.location.tz_id);
+}
+
+// ---- FORECAST ----
+function updateForecast(data) {
+  forecastData.daily = data.forecast.forecastday;
+  forecastData.hourly = data.forecast.forecastday[0].hour;
+  forecastData.timezone = data.location.tz_id; // Store timezone for hourly formatting
+
+  displayDailyForecast();
+ ;
+}
+
+function displayDailyForecast() {
+  let forecastContainer = document.getElementById("forecast");
+  forecastContainer.innerHTML = "";
+
+  forecastData.daily.slice(1, 8).forEach((day) => {
+    let date = new Date(day.date);
+    let weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+    let monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    let icon = "https:" + day.day.condition.icon;
+
+    let card = `
+      <div class="bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center w-full">
+        <p class="font-semibold">${weekday}</p>
+        <p class="text-sm">${monthDay}</p>
+        <img src="${icon}" alt="${day.day.condition.text}" class="w-12 h-12 mx-auto">
+        <p class="font-semibold">${Math.round(day.day.maxtemp_c)}° / ${Math.round(day.day.mintemp_c)}°</p>
+      </div>
+    `;
+    forecastContainer.innerHTML += card;
+  });
+}
+
+
+
+
+
+
+// ---- DETECT LOCATION ----
 function detectLocationWeather() {
+  let lastCity = localStorage.getItem("lastCity") || "London";
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         getWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
       },
       (err) => {
-        console.error(err);
-        let lastCity = localStorage.getItem("lastCity") || "London";
-        search(lastCity);
-      }
+        console.error("Geolocation failed:", err.message);
+        search(lastCity); // fallback
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   } else {
-    let lastCity = localStorage.getItem("lastCity") || "London";
     search(lastCity);
   }
 }
 
-// 🔹 Search by Enter key
+// ---- EVENT LISTENERS ----
 const input = document.querySelector('input[placeholder="Search location..."]');
-input.addEventListener("keypress", function (e) {
-  if (e.key === "Enter" && input.value.trim() !== "") {
+const submitBtn = document.getElementById("submit_btn");
+
+submitBtn.addEventListener("click", () => {
+  if (input.value.trim() !== "") {
     search(input.value.trim());
     input.value = "";
   }
 });
 
-// 🔹 Toggle click events
 document.getElementById("celsius").addEventListener("click", () => {
   isCelsius = true;
   localStorage.setItem("unit", "C");
   updateTemperatureDisplay();
 });
+
 document.getElementById("fahrenheit").addEventListener("click", () => {
   isCelsius = false;
   localStorage.setItem("unit", "F");
   updateTemperatureDisplay();
 });
 
-// 🔹 Load last search or detect location on startup
-window.onload = () => {
-  document.body.style.backgroundImage = "url('src/images/cloudy.jpg')";// Set your desired background image here
-  document.body.style.backgroundSize = "cover";
-  document.body.style.backgroundPosition = "center";
+document.getElementById("dailyBtn").addEventListener("click", () => {
+ displayDailyForecast();
+  
+});
 
-  detectLocationWeather(); // Load weather on startup
-};
 document.getElementById("get-location").addEventListener("click", () => {
   detectLocationWeather();
 });
 
 
+// ---- INITIAL LOAD ----
+window.onload = () => {
+  document.body.style.backgroundImage = "url('src/images/cloudy.jpg')";
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundPosition = "center";
+  detectLocationWeather();
+};
 
-
+// ---- SERVICE WORKER ----
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("src/service_worker.js")
-      .then(register => console.log("Service Worker registered:",register))
+      .then(register => console.log("Service Worker registered:", register))
       .catch(err => console.log("Service Worker registration failed:", err));
   });
 }
-
