@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather App</title>
+  <title>Daily Weather</title>
   <link rel="icon" type="image/png" href="src/icons/weather_logo.png">
   <link href="manifest.json" rel="manifest">
   <script src="src/index.js" defer></script>
@@ -62,7 +62,7 @@
 <div class="mt-10 px-4 py-2 flex justify-between items-start">
   <!-- Left side (Weather info) -->
   <div class="md:text-left space-y-1">
-    <h2 class="text-2xl">Weather</h2>
+    <h2 class="text-2xl text-black font-bold">Weather</h2>
     <p class="text-xl text-gray-700 mt-2">Now</p>
 
     <div class="flex items-center mt-2">
@@ -91,22 +91,10 @@
 </div>
 </div>
 
-
-
-     
-<!-- Daily Button -->
-<div class="flex justify-center items-center mb-4 ">
-  <button id="dailyBtn" 
-    class="px-4 py-2 rounded-full bg-teal-300 text-white font-semibold shadow-md hover:scale-105 transition">
-    Daily
-  </button>
-  
-</div>
-
 <!-- Forecast Container -->
 <div id="forecast"
   class="flex space-x-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent
-       md:gap-6 md:space-x-0 md:overflow-x-visible">
+       md:gap-6 md:space-x-0 md:overflow-x-visible pt-4 w-full">
 </div>
 
 
@@ -114,97 +102,97 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <!-- Left Column -->
         <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md">
-          <div class="flex justify-between items-center py-2 border-b border-white/20">
-            <span class="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>High / Low</span>
-            </span>
-            <span>13° / 2°</span>
-          </div>
+  <div class="flex justify-between items-center py-2 border-b border-white/20">
+    <span class="flex items-center space-x-2">
+      <img src="src/icons/high_low.png" class="w-5 h-5" alt="">
+      <span class="text-black">High / Low</span>
+    </span>
+    <span id="highLow" class="text-gray-500">-- / --</span>
+  </div>
 
-          <div class="flex justify-between items-center py-2 border-b border-white/20">
-            <span class="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>Feels Like</span>
-            </span>
-            <span>6°</span>
-          </div>
+  <div class="flex justify-between items-center py-2 border-b border-white/20">
+    <span class="flex items-center space-x-2">
+      <img src="src/icons/feels_like.png" class="w-5 h-5" alt="">
+      <span class="text-black">Feels Like</span>
+    </span>
+    <span id="feelsLike" class="text-gray-500">--</span>
+  </div>
 
-          <div class="flex justify-between items-center py-2 border-b border-white/20">
-            <span class="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>Pressure</span>
-            </span>
-            <span>1024.0 mb</span>
-          </div>
+  <div class="flex justify-between items-center py-2 border-b border-white/20">
+    <span class="flex items-center space-x-2">
+      <img src="src/icons/pressure.png" class="w-5 h-5" alt="">
+      <span class="text-black">Pressure</span>
+    </span>
+    <span id="pressure" class="text-gray-500">--</span>
+  </div>
 
-          <div class="flex justify-between items-center py-2 border-b border-white/20">
-            <span  idclass="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>Humidity</span>
-            </span>
-            <span>70%</span>
-          </div>
+  <div class="flex justify-between items-center py-2 border-b border-white/20">
+    <span class="flex items-center space-x-2">
+      <img src="src/icons/humidity.png" class="w-5 h-5" alt="">
+      <span class="text-black">Humidity</span>
+    </span>
+    <span id="humidityDetail" class="text-gray-500">--</span>
+  </div>
 
-          <div class="flex justify-between items-center py-2 border-b border-white/20">
-            <span class="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>Dew Point</span>
-            </span>
-            <span>8°</span>
-          </div>
+  <div class="flex justify-between items-center py-2 border-b border-white/20">
+    <span class="flex items-center space-x-2">
+      <img src="src/icons/dew_point.png" class="w-5 h-5" alt="">
+      <span class="text-black">Dew Point</span>
+    </span>
+    <span id="dewPoint" class="text-gray-500">--</span>
+  </div>
 
-          <div class="flex justify-between items-center py-2">
-            <span class="flex items-center space-x-2">
-              <img src="" class="w-5 h-5" alt="">
-              <span>Visibility</span>
-            </span>
-            <span>27 km</span>
-          </div>
-        </div>
+  <div class="flex justify-between items-center py-2">
+    <span class="flex items-center space-x-2 text-gray-900">
+      <img src="src/icons/visibility.png" class="w-5 h-5" alt="">
+      <span class="text-black">Visibility</span>
+    </span>
+    <span  id="visibility" class="text-gray-500">--</span>
+  </div>
+</div>
 
         <!-- Right Column -->
         <div class="grid grid-cols-1 gap-4">
-          <!-- Sunrise / Sunset -->
-          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md flex justify-between items-center">
-            <div class="text-center">
-              <img src="" class="w-8 h-8 mx-auto" alt="">
-              <p class="text-sm mt-1">Sunrise</p>
-              <p class="font-bold">06:46</p>
-            </div>
-            <div class="text-center">
-              <img src="" class="w-8 h-8 mx-auto" alt="">
-              <p class="text-sm mt-1">Sunset</p>
-              <p class="font-bold">19:01</p>
-            </div>
-          </div>
+  <!-- Sunrise / Sunset -->
+  <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md flex justify-between items-center">
+    <div class="text-center">
+      <img src="src/icons/sunrise.png" class="w-8 h-8 mx-auto" alt="Sunrise Icon">
+      <p class="text-sm mt-1">Sunrise</p>
+      <p id="sunrise" class="font-bold">--:--</p>
+    </div>
+    <div class="text-center">
+      <img src="src/icons/sunset.png" class="w-8 h-8 mx-auto" alt="Sunset Icon">
+      <p class="text-sm mt-1">Sunset</p>
+      <p id="sunset" class="font-bold">--:--</p>
+    </div>
+  </div>
+</div>
 
           <!-- Wind -->
-          <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md grid grid-cols-3 text-center">
-            <div>
-              <img src="" class="w-6 h-6 mx-auto" alt="">
-              <p class="text-sm">Speed</p>
-              <p class="font-bold">9 km/h</p>
-            </div>
-            <div>
-              <img src="" class="w-6 h-6 mx-auto" alt="">
-              <p class="text-sm">Direction</p>
-              <p class="font-bold">NE</p>
-            </div>
-            <div>
-              <img src="" class="w-6 h-6 mx-auto" alt="">
-              <p class="text-sm">Gust</p>
-              <p class="font-bold">18 km/h</p>
-            </div>
-          </div>
+<div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md grid grid-cols-3 text-center">
+  <div>
+    <img src="src/icons/wind_speed.png" class="w-6 h-6 mx-auto" alt="Wind Speed">
+    <p class="text-sm">Speed</p>
+    <p id="windSpeed" class="font-bold">-- km/h</p>
+  </div>
+  <div>
+    <img src="src/icons/wind_direction.png" class="w-6 h-6 mx-auto" alt="Wind Direction">
+    <p class="text-sm">Direction</p>
+    <p id="windDir" class="font-bold">--</p>
+  </div>
+  <div>
+    <img src="src/icons/wind_gust.png" class="w-6 h-6 mx-auto" alt="Wind Gust">
+    <p class="text-sm">Gust</p>
+    <p id="windGust" class="font-bold">-- km/h</p>
+  </div>
+</div>
+
 
           <!-- UV Index -->
           <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 shadow-md text-center">
-            <p class="text-sm">UV Index</p>
-            <p class="text-2xl font-bold text-yellow-500">3</p>
-          </div>
-        </div>
-      </div>
+  <p class="text-sm">UV Index</p>
+  <p id="uvIndex" class="text-2xl font-bold text-yellow-500">--</p>
+</div>
     </section>
 
   </main>

@@ -58,6 +58,11 @@ async function search(city) {
 
     updateWeatherUI(data);
     updateForecast(data);
+    updateWeatherDetails(data);
+    updateSunTimes(data);
+    updateWindDetails(data);
+    updateUVIndex(data);
+
 
     localStorage.setItem("lastCity", city);
   } catch (error) {
@@ -78,6 +83,11 @@ async function getWeatherByCoords(lat, lon) {
 
     updateWeatherUI(data);
     updateForecast(data);
+    updateWeatherDetails(data);
+    updateSunTimes(data);
+    updateWindDetails(data);
+    updateUVIndex(data);
+
 
     localStorage.setItem("lastCity", data.location.name);
   } catch (error) {
@@ -130,7 +140,7 @@ function displayDailyForecast() {
         <p class="font-semibold">${weekday}</p>
         <p class="text-sm">${monthDay}</p>
         <img src="${icon}" alt="${day.day.condition.text}" class="w-12 h-12 mx-auto">
-        <p class="font-semibold">${Math.round(day.day.maxtemp_c)}° / ${Math.round(day.day.mintemp_c)}°</p>
+        <p class="font-semibold text-sm">${Math.round(day.day.maxtemp_c)}°/${Math.round(day.day.mintemp_c)}°</p>
       </div>
     `;
     forecastContainer.innerHTML += card;
@@ -162,6 +172,46 @@ function detectLocationWeather() {
   }
 }
 
+function updateWeatherDetails(data) {
+  document.getElementById("highLow").textContent = 
+    `${data.forecast.forecastday[0].day.maxtemp_c}° / ${data.forecast.forecastday[0].day.mintemp_c}°`;
+
+  document.getElementById("feelsLike").textContent = 
+    `${data.current.feelslike_c }°`;
+
+  document.getElementById("pressure").textContent = 
+    `${data.current.pressure_mb} mb`;
+
+  document.getElementById("humidityDetail").textContent = 
+    `${data.current.humidity}%`;
+
+  document.getElementById("visibility").textContent = 
+    `${data.current.vis_km} km`;
+
+  // If dew point not available, just leave it "--"
+  if (data.current.dewpoint_c) {
+    document.getElementById("dewPoint").textContent = `${data.current.dewpoint_c}°`;
+  } else {
+    document.getElementById("dewPoint").textContent = "--";
+  }
+}
+
+function updateSunTimes(data) {
+  document.getElementById("sunrise").textContent = data.forecast.forecastday[0].astro.sunrise;
+  document.getElementById("sunset").textContent = data.forecast.forecastday[0].astro.sunset;
+}
+
+function updateWindDetails(data) {
+  document.getElementById("windSpeed").textContent = `${data.current.wind_kph} km/h`;
+  document.getElementById("windDir").textContent = data.current.wind_dir;
+  document.getElementById("windGust").textContent = `${data.current.gust_kph} km/h`;
+}
+
+function updateUVIndex(data) {
+  document.getElementById("uvIndex").textContent = data.current.uv;
+}
+
+
 // ---- EVENT LISTENERS ----
 const input = document.querySelector('input[placeholder="Search location..."]');
 const submitBtn = document.getElementById("submit_btn");
@@ -185,10 +235,8 @@ document.getElementById("fahrenheit").addEventListener("click", () => {
   updateTemperatureDisplay();
 });
 
-document.getElementById("dailyBtn").addEventListener("click", () => {
- displayDailyForecast();
   
-});
+
 
 document.getElementById("get-location").addEventListener("click", () => {
   detectLocationWeather();
