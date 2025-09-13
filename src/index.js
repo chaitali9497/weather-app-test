@@ -25,7 +25,34 @@ function updateTemperatureDisplay() {
     document.getElementById("celsius").classList.remove("font-bold", "text-black");
     document.getElementById("celsius").classList.add("text-gray-500");
   }
+  // --- Current Temp ---
+  if (currentTempCelsius !== null) {
+    const tempElement = document.getElementById("temperature");
+    tempElement.textContent = isCelsius
+      ? Math.round(currentTempCelsius)
+      : Math.round(cToF(currentTempCelsius));
+  }
+
+  // --- High / Low ---
+  if (forecastData.daily.length > 0) {
+    let today = forecastData.daily[0].day;
+    let max = isCelsius ? today.maxtemp_c : cToF(today.maxtemp_c);
+    let min = isCelsius ? today.mintemp_c : cToF(today.mintemp_c);
+    document.getElementById("highLow").textContent = `${Math.round(max)}° / ${Math.round(min)}°`;
+  }
+
+  // --- Feels Like ---
+  if (currentTempCelsius !== null) {
+    let feelsLike = forecastData.daily[0]?.day?.avgtemp_c || currentTempCelsius;
+    document.getElementById("feelsLike").textContent = isCelsius
+      ? `${Math.round(feelsLike)}°`
+      : `${Math.round(cToF(feelsLike))}°`;
+  }
+
+  // --- Forecast Cards ---
+  displayDailyForecast(); // re-render cards with correct unit
 }
+
 
 // ---- GLOBAL CLOCK FUNCTION ----
 function startCityClock(timezone) {
@@ -49,13 +76,19 @@ function startCityClock(timezone) {
 // ---- FETCH WEATHER BY CITY NAME ----
 async function search(city) {
   try {
+     // Show loader
+    
     let apiKey = "ea13345dcb06454a8f5154438251109";
-    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=7&aqi=no&alerts=no`;
+    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=7&aqi=yes&alerts=no`;
 
     let response = await fetch(url);
-    if (!response.ok) throw new Error("City not found");
     let data = await response.json();
 
+    if (data.error) {
+  throw new Error(data.error.message); 
+}
+    
+   
     updateWeatherUI(data);
     updateForecast(data);
     updateWeatherDetails(data);
@@ -64,22 +97,36 @@ async function search(city) {
     updateUVIndex(data);
 
 
-    localStorage.setItem("lastCity", city);
+
+     let history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    if (!history.includes(city)) {
+      history.push(city); // add new city
+    }
+    localStorage.setItem("searchHistory", JSON.stringify(history));
+    localStorage.setItem("lastCity", city); // optional, keep last search too
+
+
+    
+    
   } catch (error) {
     console.error(error);
-    alert(error.message);
+    showError(error.message || "Unable to fetch weather.");
   }
+  
 }
+
 
 // ---- FETCH WEATHER BY COORDINATES ----
 async function getWeatherByCoords(lat, lon) {
   try {
     let apiKey = "ea13345dcb06454a8f5154438251109";
-    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=no&alerts=no`;
+    let url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=7&aqi=yes&alerts=no`;
 
     let response = await fetch(url);
-    if (!response.ok) throw new Error("Unable to fetch location weather");
     let data = await response.json();
+       if (data.error) {
+  throw new Error(data.error.message); 
+}
 
     updateWeatherUI(data);
     updateForecast(data);
@@ -92,8 +139,19 @@ async function getWeatherByCoords(lat, lon) {
     localStorage.setItem("lastCity", data.location.name);
   } catch (error) {
     console.error(error);
-    alert(error.message);
+    showError(error.message || "Unable to fetch weather.");
   }
+}
+
+function showError(message) {
+  const errorBox = document.getElementById("error-message");
+  errorBox.textContent = message;
+  errorBox.classList.remove("hidden");
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorBox.classList.add("hidden");
+  }, 5000);
 }
 
 // ---- UPDATE WEATHER UI ----
@@ -134,13 +192,19 @@ function displayDailyForecast() {
     let weekday = date.toLocaleDateString("en-US", { weekday: "short" });
     let monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
     let icon = "https:" + day.day.condition.icon;
+    let max = isCelsius ? day.day.maxtemp_c : cToF(day.day.maxtemp_c);
+    let min = isCelsius ? day.day.mintemp_c : cToF(day.day.mintemp_c);
+
 
     let card = `
       <div class="bg-opacity-30 backdrop-blur-md rounded-xl p-4 text-center w-full">
         <p class="font-semibold">${weekday}</p>
         <p class="text-sm">${monthDay}</p>
         <img src="${icon}" alt="${day.day.condition.text}" class="w-12 h-12 mx-auto">
-        <p class="font-semibold text-sm">${Math.round(day.day.maxtemp_c)}°/${Math.round(day.day.mintemp_c)}°</p>
+        <p class="font-semibold text-sm">
+        ${Math.round(max)}°${isCelsius ? "C" : "F"} /
+      ${Math.round(min)}°${isCelsius ? "C" : "F"}
+        </p>
       </div>
     `;
     forecastContainer.innerHTML += card;
@@ -148,27 +212,42 @@ function displayDailyForecast() {
 }
 
 
-
-
-
-
 // ---- DETECT LOCATION ----
 function detectLocationWeather() {
   let lastCity = localStorage.getItem("lastCity") || "London";
 
   if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        getWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
-      },
-      (err) => {
-        console.error("Geolocation failed:", err.message);
-        search(lastCity); // fallback
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          // return the promise from getWeatherByCoords
+          getWeatherByCoords(pos.coords.latitude, pos.coords.longitude)
+            .then(resolve)
+            .catch(reject);
+        },
+        (err) => {
+          console.error("Geolocation failed:", err.message);
+          // fallback to last city
+          search(lastCity).then(resolve).catch(reject);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
   } else {
-    search(lastCity);
+    return search(lastCity); // return promise from search
+  }
+}
+
+
+function getAQIText(index) {
+  switch (index) {
+    case 1: return "Good";
+    case 2: return "Moderate";
+    case 3: return "Unhealthy (Sensitive)";
+    case 4: return "Unhealthy";
+    case 5: return "Very Unhealthy";
+    case 6: return "Hazardous";
+    default: return "--";
   }
 }
 
@@ -177,7 +256,7 @@ function updateWeatherDetails(data) {
     `${data.forecast.forecastday[0].day.maxtemp_c}° / ${data.forecast.forecastday[0].day.mintemp_c}°`;
 
   document.getElementById("feelsLike").textContent = 
-    `${data.current.feelslike_c }°`;
+    `${data.current.feelslike_c}°`;
 
   document.getElementById("pressure").textContent = 
     `${data.current.pressure_mb} mb`;
@@ -188,13 +267,25 @@ function updateWeatherDetails(data) {
   document.getElementById("visibility").textContent = 
     `${data.current.vis_km} km`;
 
-  // If dew point not available, just leave it "--"
-  if (data.current.dewpoint_c) {
+    
+
+  //  Air Quality (check if available)
+  if (data.current.air_quality && data.current.air_quality["us-epa-index"] !== undefined) {
+    let index = data.current.air_quality["us-epa-index"];
+    document.getElementById("air-quality").textContent = 
+      ` ${getAQIText(index)}`;
+  } else {
+    document.getElementById("air-quality").textContent = "--";
+  }
+  //  Dew Point (WeatherAPI sometimes doesn’t send it)
+  if (data.current.dewpoint_c !== undefined) {
     document.getElementById("dewPoint").textContent = `${data.current.dewpoint_c}°`;
   } else {
     document.getElementById("dewPoint").textContent = "--";
   }
 }
+
+
 
 function updateSunTimes(data) {
   document.getElementById("sunrise").textContent = data.forecast.forecastday[0].astro.sunrise;
@@ -212,15 +303,89 @@ function updateUVIndex(data) {
 }
 
 
+
+
 // ---- EVENT LISTENERS ----
-const input = document.querySelector('input[placeholder="Search location..."]');
+const input = document.getElementById("search-input"); 
 const submitBtn = document.getElementById("submit_btn");
+const suggestions = document.getElementById("search-suggestions");
+const clearBtn = document.getElementById("clearBtn");
+
+function loadSuggestions() {
+    const history = JSON.parse(localStorage.getItem("searchHistory")) || [];
+    const suggestions = document.getElementById("search-suggestions");
+    const filter = document.getElementById("search-input").value.toLowerCase();
+
+    suggestions.innerHTML = "";
+
+    if (history.length === 0) return suggestions.classList.add("hidden");
+
+    // Filter the history based on input
+    const filtered = history.filter(city => city.toLowerCase().startsWith(filter));
+
+    filtered.reverse().forEach(city => {
+        const li = document.createElement("li");
+
+        // Highlight matching part
+        const matchText = city.substring(0, filter.length);
+        const restText = city.substring(filter.length);
+        li.innerHTML = `<span class="highlight">${matchText}</span>${restText}`;
+
+        li.classList.add("cursor-pointer", "p-2", "hover:bg-gray-200");
+        li.addEventListener("click", () => {
+            document.getElementById("search-input").value = city;
+            search(city);
+            suggestions.classList.add("hidden");
+        });
+        suggestions.appendChild(li);
+    });
+
+    suggestions.classList.toggle("hidden", filtered.length === 0);
+}
+
+// Hide suggestions on blur
+document.getElementById("search-input").addEventListener("blur", () => {
+    setTimeout(() => document.getElementById("search-suggestions").classList.add("hidden"), 150);
+});
+
+// Show suggestions on input
+document.getElementById("search-input").addEventListener("input", loadSuggestions);
+
+
+
+// Add focus listener to input
+input.addEventListener("focus", () => {
+    loadSuggestions(); // show dropdown when input is focused
+});
+
 
 submitBtn.addEventListener("click", () => {
-  if (input.value.trim() !== "") {
-    search(input.value.trim());
-    input.value = "";
+  const query = input.value.trim();
+  if (query === "") {
+    showError("Please enter a city name.");
+    return;
   }
+  if (!/^[a-zA-Z\s]+$/.test(query)) {
+    showError("Please enter a valid city name.");
+    return;
+  }
+
+  search(query);       // Call your search function
+  input.value = "";    // Clear input
+
+  // Hide suggestions after search
+  suggestions.classList.add("hidden");
+});
+
+
+
+
+  
+
+clearBtn.addEventListener("click", () => {
+  searchInput.value = "";
+  clearBtn.classList.add("hidden");
+  searchInput.focus();
 });
 
 document.getElementById("celsius").addEventListener("click", () => {
@@ -243,12 +408,43 @@ document.getElementById("get-location").addEventListener("click", () => {
 });
 
 
+// Loader
+function showLoader() {
+  const loader = document.getElementById("loader");
+  loader.style.display = "flex"; // make it visible
+  setTimeout(() => {
+    loader.classList.add("show"); // fade in smoothly
+  }, 2000); // small delay so transition applies
+  document.getElementById("app").classList.add("hidden");
+}
+
+function hideLoader() {
+  const loader = document.getElementById("loader");
+  loader.classList.remove("show"); // start fade out
+  setTimeout(() => {
+    loader.style.display = "none"; // hide after fade out
+    document.getElementById("app").classList.remove("hidden");
+  }, 2000); // match transition duration
+}
+
+
+
+
 // ---- INITIAL LOAD ----
 window.onload = () => {
   document.body.style.backgroundImage = "url('src/images/cloudy.jpg')";
   document.body.style.backgroundSize = "cover";
   document.body.style.backgroundPosition = "center";
-  detectLocationWeather();
+  showLoader(); // show loader before fetching
+
+  detectLocationWeather()
+    .then(() => {
+      hideLoader(); // hide loader only after weather data updates
+    })
+    .catch((err) => {
+      console.error("Error loading weather:", err);
+      hideLoader(); // hide loader even if there’s an error
+    });
 };
 
 // ---- SERVICE WORKER ----

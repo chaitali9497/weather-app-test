@@ -8,7 +8,7 @@ const FILES_TO_CACHE = [
   "src/input.css",
   "src/index.js",
   "src/icons/weather_logo.png",
-  "src/icons/weather.png"
+  "src/icons/weather_logo.png"
 ];
 
 // Install event → cache files
